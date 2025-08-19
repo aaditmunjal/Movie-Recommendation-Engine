@@ -21,6 +21,27 @@ algo = SVD()
 algo.fit(trainset)
 
 
-# TODO: given userId, recommend best movies
+# Make recommendations for the userId
 def make_recs(userId):
-    print(algo.predict("1", "2"))
+    # Get movies that have already been rated by the user
+    ratedByUser = ratings_df[ratings_df['userId'] == userId]['movieId'].to_list()
+    
+    # Get movies that have not been rated by the user yet
+    possibleRecs = movies_df[~movies_df['movieId'].isin(ratedByUser)].reset_index(drop=True)
+    # Get a list of the movieIds of unrated movies
+    recList = possibleRecs['movieId'].to_list()
+    
+    # Predict ratings for all unrated movies
+    out = []
+    for i in recList:
+        out.append((algo.predict(str(userId), str(i))).est)
+
+    possibleRecs['estimate'] = out
+
+    # Recommend the top 10
+    top_10 = possibleRecs.nlargest(10, 'estimate')['title'].to_list()
+    
+    print("Here are some recommendations: ")
+    for i in top_10:
+        print(i)
+
