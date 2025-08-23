@@ -3,7 +3,7 @@ import pickle
 
 # Make dataframes for ratings and movies
 ratings_df = pd.read_csv(r'data\ratings.csv', usecols=[0, 1, 2], names=["userId", "movieId", "rating"])
-movies_df = pd.read_csv(r"data\movies.csv")
+movies_df = pd.read_csv(r"data\movies.csv", usecols=[0, 1])
 
 # Load model
 with open("model.pkl", "rb") as f:
@@ -23,8 +23,5 @@ def make_recs(userId, top_n=10):
         for movie_id in possible_recs['movieId']
     ]
 
-    # Select top N recommendations
-    top_movies = possible_recs.nlargest(top_n, 'estimate')['title']
-
-    print("Here are some recommendations:")
-    print("\n".join(top_movies))
+    # Return top N recommendations
+    return possible_recs.nlargest(top_n, 'estimate')['title'].to_list()
